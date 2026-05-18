@@ -5,6 +5,7 @@ import { ForecastChart } from '../components/charts/ForecastChart.jsx'
 import { useIot } from '../state/iotContext.js'
 import { getForecastChartData } from '../services/forecastDataset.js'
 import { buildOverlappedChartSeries } from '../utils/forecastChartSeries.js'
+import { isDummyDailyH7Enabled } from '../utils/dummyDailyH7.js'
 
 const MODEL_LABEL =
   'Model ML: SmartWater_BiLSTM_57L (best_water_model 2) • input 60×27 • output total_used_liter'
@@ -22,8 +23,9 @@ export function MonitoringPage() {
     [state.dailyConsumption, csvChart],
   )
 
+  const actualSource = isDummyDailyH7Enabled() ? 'dummy H-7 + ThingsBoard' : 'ThingsBoard'
   const sourceDetail = csvChart
-    ? `CSV hari 1–7 dipetakan ke tanggal aktual • ${csvChart.sourceCsv}`
+    ? `Aktual: ${actualSource} • Forecast CSV hari 1–7 • ${csvChart.sourceCsv}`
     : null
 
   return (

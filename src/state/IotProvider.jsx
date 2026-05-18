@@ -7,7 +7,8 @@ import { connectThingsBoardMqtt } from '../services/thingsboardMqtt.js'
 import { tbLog, tbWarn } from '../services/thingsboardLog.js'
 import { connectThingsBoardRestPoll } from '../services/thingsboardRestPoll.js'
 import { connectThingsBoardWs } from '../services/thingsboardWs.js'
-import { buildAlerts } from '../utils/iot.js'
+import { buildAlerts, estimatedDaysRemaining, movingAverage } from '../utils/iot.js'
+import { applyDummyDailyH7, isDummyDailyH7Enabled } from '../utils/dummyDailyH7.js'
 
 const TB_ENABLED = import.meta.env.VITE_TB_ENABLED === 'true' || Boolean(import.meta.env.VITE_TB_TOKEN)
 const TB_BASE_URL = (import.meta.env.VITE_TB_BASE_URL || '').trim()
@@ -106,10 +107,37 @@ function buildEmptyTelemetry(settings, pump = DEFAULT_PUMP) {
   }
 }
 
-function initialState(settings) {
-  const telemetry = buildEmptyTelemetry(settings)
+function enrichConsumptionFromDaily(telemetry, settings, dailyConsumption) {
+  const last7 = dailyConsumption.slice(-7).map((d) => Number(d.liters) || 0)
+  const dailyAverageLiter = movingAverage(last7, 7)
+  const volume =
+    telemetry.tank?.currentVolumeLiter ??
+    (settings.capacityLiter * (telemetry.tank?.percentage ?? 65)) / 100
 
   return {
+    ...telemetry,
+    consumption: {
+      ...telemetry.consumption,
+      dailyAverageLiter,
+      estimatedDaysRemaining: estimatedDaysRemaining(volume, dailyAverageLiter),
+    },
+  }
+}
+
+function withDummyDaily(state) {
+  const dailyConsumption = applyDummyDailyH7(state.dailyConsumption)
+  if (dailyConsumption === state.dailyConsumption) return state
+
+  return {
+    ...state,
+    dailyConsumption,
+    telemetry: enrichConsumptionFromDaily(state.telemetry, state.settings, dailyConsumption),
+  }
+}
+
+function initialState(settings) {
+  const telemetry = buildEmptyTelemetry(settings)
+  const base = {
     settings,
     connection: {
       source: 'thingsboard',
@@ -126,6 +154,8 @@ function initialState(settings) {
     alerts: [],
     ingest: { lastMs: null },
   }
+
+  return isDummyDailyH7Enabled() ? withDummyDaily(base) : base
 }
 
 function ingestExternalTelemetry(state, { timestamp, values }) {
@@ -175,7 +205,7 @@ function ingestExternalTelemetry(state, { timestamp, values }) {
     pumpOnDurationMinutes,
   })
 
-  return {
+  return withDummyDaily({
     ...state,
     settings: mapped.settings,
     telemetry: nextTelemetry,
@@ -184,7 +214,7 @@ function ingestExternalTelemetry(state, { timestamp, values }) {
     pump: nextPump,
     alerts,
     ingest: mapped.ingest,
-  }
+  })
 }
 
 function reducer(state, action) {

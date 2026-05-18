@@ -6,6 +6,7 @@ import { useIot } from '../state/iotContext.js'
 import { formatLiter, formatNumber } from '../utils/format.js'
 import { getForecastChartData } from '../services/forecastDataset.js'
 import { buildOverlappedChartSeries } from '../utils/forecastChartSeries.js'
+import { isDummyDailyH7Enabled } from '../utils/dummyDailyH7.js'
 
 const MODEL_LABEL =
   'Model ML: SmartWater_BiLSTM_57L (best_water_model 2) • input 60×27 • output total_used_liter • scaler public/models/best-water/scaler.json'
@@ -49,8 +50,11 @@ export function PredictionPage() {
       ? '—'
       : `${formatNumber(t.consumption.estimatedDaysRemaining, { maximumFractionDigits: 1 })} hari`
 
+  const actualSource = isDummyDailyH7Enabled()
+    ? 'dummy H-7 + ThingsBoard (hari ini)'
+    : 'ThingsBoard'
   const sourceDetail = csvChart
-    ? `Aktual: konsumsi harian ThingsBoard • Forecast: CSV hari 1–7 (${csvChart.sourceCsv}) pada tanggal yang sama`
+    ? `Aktual: ${actualSource} • Forecast: CSV hari 1–7 (${csvChart.sourceCsv}) pada tanggal yang sama`
     : 'Jalankan npm run build:chart-data untuk garis forecast'
 
   return (
@@ -61,7 +65,7 @@ export function PredictionPage() {
           value={formatLiter(liveAvg, 1) + '/hari'}
           subtitle={
             liveLast7.length
-              ? `Data aktual ${liveLast7.length} hari • ThingsBoard`
+              ? `Data aktual ${liveLast7.length} hari • ${actualSource}`
               : 'Menunggu data konsumsi harian'
           }
           icon={BarChart3}
