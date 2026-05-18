@@ -1,0 +1,47 @@
+{
+  "name": "ultrasonic-iot",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:model": "python scripts/export_smart_water_weights.py && node scripts/build_smart_water_tfjs.mjs",
+    "build:scaler": "python scripts/export_scaler_from_csv.py",
+    "build:chart-data": "python scripts/export_forecast_chart_data.py",
+    "build:forecast": "npm run build:scaler && npm run build:chart-data && npm run build:model",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "db:migrate": "node server/scripts/migrate.js",
+    "db:seed": "node server/seeders/run.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.14.0",
+    "lucide-react": "^0.542.0",
+    "mqtt": "^5.14.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.8.2",
+    "recharts": "^3.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "vite": "^8.0.12",
+    "tailwindcss": "^4.1.13",
+    "@tailwindcss/postcss": "^4.1.13",
+    "postcss": "^8.5.6",
+    "autoprefixer": "^10.4.20"
+  }
+}
