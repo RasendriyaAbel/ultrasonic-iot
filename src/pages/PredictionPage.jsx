@@ -6,7 +6,6 @@ import { useIot } from '../state/iotContext.js'
 import { formatLiter, formatNumber } from '../utils/format.js'
 import { getForecastChartData } from '../services/forecastDataset.js'
 import { buildOverlappedChartSeries } from '../utils/forecastChartSeries.js'
-import { isMysqlDailyEnabled } from '../services/mysqlDaily.js'
 
 const MODEL_LABEL =
   'Model ML: SmartWater_BiLSTM_57L (best_water_model 2) • input 60×27 • output total_used_liter • scaler public/models/best-water/scaler.json'
@@ -62,7 +61,7 @@ export function PredictionPage() {
           value={formatLiter(liveAvg, 1) + '/hari'}
           subtitle={
             liveLast7.length
-              ? `Data aktual ${liveLast7.length} hari • ${actualSource}`
+              ? `Data aktual ${liveLast7.length} hari • ThingsBoard`
               : 'Menunggu data konsumsi harian'
           }
           icon={BarChart3}

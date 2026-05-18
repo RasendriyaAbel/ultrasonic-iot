@@ -8,7 +8,6 @@ import { tbLog, tbWarn } from '../services/thingsboardLog.js'
 import { connectThingsBoardRestPoll } from '../services/thingsboardRestPoll.js'
 import { connectThingsBoardWs } from '../services/thingsboardWs.js'
 import { buildAlerts } from '../utils/iot.js'
-import { fetchDailyConsumptionFromMysql, isMysqlDailyEnabled } from '../services/mysqlDaily.js'
 
 const TB_ENABLED = import.meta.env.VITE_TB_ENABLED === 'true' || Boolean(import.meta.env.VITE_TB_TOKEN)
 const TB_BASE_URL = (import.meta.env.VITE_TB_BASE_URL || '').trim()
@@ -225,8 +224,6 @@ function reducer(state, action) {
         },
       }
     }
-    case 'SET_DAILY_CONSUMPTION':
-      return { ...state, dailyConsumption: action.dailyConsumption ?? [] }
     case 'SET_PUMP_STATUS': {
       const desired = action.status
       const nowMs = Date.now()
@@ -340,24 +337,6 @@ export function IotProvider({ children }) {
 
     return () => {
       conn.disconnect()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isMysqlDailyEnabled()) return
-
-    let cancelled = false
-    fetchDailyConsumptionFromMysql({ from: '2026-05-10', to: '2026-05-17' })
-      .then((daily) => {
-        if (cancelled || !daily?.length) return
-        dispatch({ type: 'SET_DAILY_CONSUMPTION', dailyConsumption: daily })
-      })
-      .catch((err) => {
-        console.warn('[mysql] Gagal memuat konsumsi harian:', err.message)
-      })
-
-    return () => {
-      cancelled = true
     }
   }, [])
 

@@ -11,16 +11,9 @@
     "build:forecast": "npm run build:scaler && npm run build:chart-data && npm run build:model",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "node server/index.js",
-    "db:migrate": "node server/scripts/migrate.js",
-    "db:seed": "node server/seeders/run.js"
+    "preview": "vite preview"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "mysql2": "^3.14.0",
     "lucide-react": "^0.542.0",
     "mqtt": "^5.14.1",
     "@tensorflow/tfjs": "^4.22.0",
