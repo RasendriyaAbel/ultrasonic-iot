@@ -1,0 +1,10 @@
+scaler.json dari CSV training (27 fitur × 60 langkah).
+
+Generate:
+  npm run build:scaler
+  atau: python scripts/export_scaler_from_csv.py "src/water_dataset_57L_90days(1).csv"
+
+Model: src/best_water_model (2).keras
+CSV:  src/water_dataset_57L_90days(1).csv
+
+Target: total_used_liter (kumulatif). Prediksi harian = selisih antar hari.
