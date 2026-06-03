@@ -15,18 +15,18 @@ export function PredictionPage() {
   const { state } = useIot()
   const t = state.telemetry
 
-  const actualDaily = state.dailyConsumption ?? []
+  const actualDaily = state.dailyConsumption
+
   const [csvChart, setCsvChart] = useState(null)
   const [csvLoading, setCsvLoading] = useState(true)
 
   const chartSeries = useMemo(
-    () => buildOverlappedChartSeries(actualDaily.slice(-7), csvChart),
+    () => buildOverlappedChartSeries((actualDaily || []).slice(-7), csvChart),
     [actualDaily, csvChart],
   )
 
   useEffect(() => {
     let cancelled = false
-    setCsvLoading(true)
     getForecastChartData()
       .then((chart) => {
         if (!cancelled) setCsvChart(chart)

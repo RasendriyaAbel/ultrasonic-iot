@@ -3,7 +3,7 @@
  * Widget TB umumnya: RPC params = boolean, atribut = key switch (true/false).
  */
 const SWITCH_KEY = (import.meta.env.VITE_TB_SWITCH_ATTRIBUTE_KEY || 'switch').trim()
-const SWITCH_SCOPE = (import.meta.env.VITE_TB_SWITCH_ATTRIBUTE_SCOPE || 'SERVER_SCOPE')
+const SWITCH_SCOPE = (import.meta.env.VITE_TB_SWITCH_ATTRIBUTE_SCOPE || 'SHARED_SCOPE')
   .trim()
   .toUpperCase()
 const RPC_STYLE = (import.meta.env.VITE_TB_SWITCH_RPC_STYLE || 'boolean').trim().toLowerCase()
@@ -26,7 +26,9 @@ export function thingsboardSwitchConfig() {
 }
 
 export function switchValueFromStatus(status) {
-  return status === 'ON'
+  if (status === 'ON') return true
+  if (status === 'OFF') return false
+  return Boolean(status)
 }
 
 export function buildSwitchAttributeBody({ status }) {
@@ -55,7 +57,8 @@ export function buildSwitchRpcParams({ status }) {
   if (RPC_STYLE === 'payload') {
     return buildSwitchAttributeBody({ status })
   }
-  // Default: sama seperti widget Switch ThingsBoard (boolean)
+  // Menyesuaikan dengan Arduino terbaru: params langsung boolean true/false
+  // req["params"].as<bool>()
   return switchValueFromStatus(status)
 }
 

@@ -1,6 +1,7 @@
 import {
   FORECAST_FEATURE_DIM,
   FORECAST_SEQ_LEN,
+  MINUTES_PER_DAY,
   extrapolateDailyLiters,
 } from '../config/forecastConfig.js'
 import { scaleFeatureVector } from './forecastScaler.js'
@@ -148,7 +149,7 @@ function buildSyntheticMinuteRows(settings, dailyConsumption, seqLen) {
   const avg =
     daily.slice(-7).reduce((s, d) => s + asNumber(d.liters), 0) /
     Math.max(1, Math.min(7, daily.length || 1))
-  const lpm = avg / MINUTES_PER_DAY_FROM_CONFIG(avg)
+  const lpm = avg / MINUTES_PER_DAY
   const capacity = asNumber(settings.capacityLiter, 57)
   const now = Date.now()
 

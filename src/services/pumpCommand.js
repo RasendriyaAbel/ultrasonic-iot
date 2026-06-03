@@ -125,24 +125,38 @@ async function postAttributes({ status, cfg, authHeader, scope }) {
   const url = buildTbApiUrl(
     `/api/plugins/telemetry/DEVICE/${cfg.deviceId}/attributes/${scopePath}`,
   )
-  const res = await fetchWithRetry(
-    url,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders(authHeader) },
-      body: JSON.stringify(buildSwitchAttributeBody({ status })),
-    },
-    { retries: 2 },
-  )
 
-  const text = await res.text()
-  if (!res.ok) {
-    const msg = readErrorMessage(text) || `Atribut gagal (HTTP ${res.status}).`
-    if (isGatewayTimeout(res.status)) throw new Error(gatewayTimeoutMessage(res.status))
-    throw new Error(msg)
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 10000)
+
+  try {
+    const res = await fetchWithRetry(
+      url,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders(authHeader) },
+        body: JSON.stringify(buildSwitchAttributeBody({ status })),
+        signal: controller.signal,
+      },
+      { retries: 1, backoffMs: 1000 },
+    )
+
+    const text = await res.text()
+    if (!res.ok) {
+      const msg = readErrorMessage(text) || `Atribut gagal (HTTP ${res.status}).`
+      if (isGatewayTimeout(res.status)) throw new Error(gatewayTimeoutMessage(res.status))
+      throw new Error(msg)
+    }
+
+    return { scope: scopePath, ok: true }
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      throw new Error(`Timeout saat memperbarui atribut ThingsBoard.`, { cause: err })
+    }
+    throw err
+  } finally {
+    clearTimeout(timer)
   }
-
-  return { scope: scopePath, ok: true }
 }
 
 async function sendPumpViaAttributes({ status, cfg, authHeader }) {
@@ -227,22 +241,51 @@ export async function sendPumpCommand({ status }) {
     return sendPumpViaRpc({ status, cfg, authHeader })
   }
 
-  // both | auto: atribut dulu (update switch TB), RPC opsional
-  const attr = await sendPumpViaAttributes({ status, cfg, authHeader })
+  // both | auto: atribut dulu (update switch TB)
+  // Atribut biasanya instan karena tidak menunggu respons alat
+  let attr = { ok: false, error: null }
+  try {
+    attr = await sendPumpViaAttributes({ status, cfg, authHeader })
+  } catch (err) {
+    attr.error = err.message
+    // Jangan lempar error di sini jika mode "both", lanjut ke RPC
+    if (transport !== 'both' && transport !== 'auto') {
+      console.error('[Pump] Attribute failed:', err)
+      throw err
+    }
+  }
 
   if (!TB_PUMP_TRY_RPC) {
     return attr
   }
 
+  // Jika atribut sukses atau mode both, coba RPC.
   try {
-    const rpc = await sendPumpViaRpc({ status, cfg, authHeader })
-    return { ...attr, ...rpc, channels: ['attribute', 'rpc'] }
-  } catch (err) {
-    return {
-      ...attr,
-      rpcSkipped: true,
-      rpcError: err.message,
-      channels: ['attribute'],
+    const rpcPromise = sendPumpViaRpc({ status, cfg, authHeader })
+
+    // Gunakan timeout yang sedikit lebih lama (4 detik) agar tidak prematur rpcPending
+    const rpcResult = await Promise.race([
+      rpcPromise,
+      new Promise((resolve) => setTimeout(() => resolve({ rpcPending: true }), 4000)),
+    ])
+
+    if (rpcResult.rpcPending) {
+      return { ...attr, rpcPending: true, channels: attr.ok ? ['attribute'] : [] }
     }
+
+    return { ...attr, ...rpcResult, channels: [attr.ok && 'attribute', 'rpc'].filter(Boolean) }
+  } catch (err) {
+    // Jika RPC gagal tapi atribut sukses, tetap anggap sukses parsial
+    if (attr.ok) {
+      return {
+        ...attr,
+        rpcSkipped: true,
+        rpcError: err.message,
+        channels: ['attribute'],
+      }
+    }
+    // Keduanya gagal
+    console.error('[Pump] Both failed:', err)
+    throw err
   }
 }

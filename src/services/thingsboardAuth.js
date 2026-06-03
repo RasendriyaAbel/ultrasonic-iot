@@ -1,4 +1,5 @@
 import { tbError, tbLog } from './thingsboardLog.js'
+import { buildTbApiUrl } from './thingsboardApi.js'
 
 async function readErrorDetail(response) {
   const text = await response.text()
@@ -11,14 +12,10 @@ async function readErrorDetail(response) {
   }
 }
 
-export async function resolveThingsBoardAuthToken({ baseUrl, wsToken, username, password }) {
+export async function resolveThingsBoardAuthToken({ baseUrl: _baseUrl, wsToken, username, password }) {
   if (wsToken) {
     tbLog('Autentikasi WebSocket: memakai VITE_TB_WS_TOKEN (JWT)')
     return wsToken
-  }
-
-  if (!baseUrl) {
-    throw new Error('VITE_TB_BASE_URL belum diatur untuk ThingsBoard')
   }
 
   if (!username || !password) {
@@ -27,9 +24,10 @@ export async function resolveThingsBoardAuthToken({ baseUrl, wsToken, username, 
     )
   }
 
-  tbLog('Autentikasi: login username/password…', { baseUrl, username })
+  const loginUrl = buildTbApiUrl('/api/auth/login')
+  tbLog('Autentikasi: login username/password…', { url: loginUrl, username })
 
-  const response = await fetch(new URL('/api/auth/login', baseUrl).toString(), {
+  const response = await fetch(loginUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

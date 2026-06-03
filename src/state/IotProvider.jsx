@@ -35,10 +35,6 @@ function canConnectTbRestPoll() {
   return Boolean(TB_BASE_URL && TB_DEVICE_ID && TB_API_KEY)
 }
 
-function canConnectTbRealtime() {
-  return canConnectTbWsJwt() || canConnectTbRestPoll()
-}
-
 /**
  * Telemetri: REST (API key) atau MQTT (token device).
  * API key bukan JWT — WebSocket tenant butuh login/JWT.
@@ -172,7 +168,7 @@ function ingestExternalTelemetry(state, { timestamp, values }) {
   const nowMs = Date.now()
   const cloudPumpStatus = mapped.telemetry?.pump?.deviceStatus
   const recentlyChanged =
-    state.pump.lastChangedMs != null && nowMs - state.pump.lastChangedMs < 8000
+    state.pump.lastChangedMs != null && nowMs - state.pump.lastChangedMs < 15000
   const syncedStatus =
     cloudPumpStatus && !recentlyChanged ? cloudPumpStatus : state.pump.status
 

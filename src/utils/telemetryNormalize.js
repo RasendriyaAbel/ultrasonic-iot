@@ -36,13 +36,6 @@ function normalizePumpStatus(v) {
   return null
 }
 
-function normalizePumpMode(v) {
-  if (v == null) return null
-  const s = String(v).trim().toUpperCase()
-  if (s === 'AUTO' || s === 'MANUAL') return s
-  return null
-}
-
 function percentageFromWaterLevel(waterLevelCm, tankHeightCm) {
   if (!Number.isFinite(waterLevelCm) || !Number.isFinite(tankHeightCm) || tankHeightCm <= 0) return null
   return clamp((waterLevelCm / tankHeightCm) * 100, 0, 100)
@@ -65,9 +58,25 @@ const DEVICE_KEY_ALIASES = {
   ],
   waterLevelCm: ['waterLevelCm', 'water_level_cm', 'level_air_cm', 'levelCm', 'waterLevel'],
   /** Flow 1 = masuk (setelah pompa) */
-  flow1Lpm: ['flow_in_lpm', 'flowInLpm', 'flow1Lpm', 'flow1', 'f1', 'debit1', 'flowSensor1'],
+  flow1Lpm: [
+    'flow_in_lpm',
+    'flowInLpm',
+    'flow1Lpm',
+    'flow1',
+    'f1',
+    'debit1',
+    'flowSensor1',
+  ],
   /** Flow 2 = keluar (ujung pipa / konsumsi) */
-  flow2Lpm: ['flow_out_lpm', 'flowOutLpm', 'flow2Lpm', 'flow2', 'f2', 'debit2', 'flowSensor2'],
+  flow2Lpm: [
+    'flow_out_lpm',
+    'flowOutLpm',
+    'flow2Lpm',
+    'flow2',
+    'f2',
+    'debit2',
+    'flowSensor2',
+  ],
   percentage: [
     'level_air_percent',
     'levelAirPercent',
@@ -76,9 +85,19 @@ const DEVICE_KEY_ALIASES = {
     'tankPercentage',
     'tank_percentage',
   ],
-  pumpStatus: ['pumpStatus', 'pump_status', 'pump_on', 'relay', 'pump', 'switch', 'Switch'],
+  currentVolumeLiter: ['volume_air_liter', 'currentVolumeLiter', 'volumeLiter', 'volume'],
+  pumpStatus: [
+    'pump_status',
+    'pumpStatus',
+    'pump_on',
+    'relay',
+    'pump',
+    'switch',
+    'Switch',
+  ],
   pumpMode: ['pumpMode', 'pump_mode', 'mode'],
   errorCount: ['error_count', 'errorCount', 'errors'],
+  pressureBar: ['pressure_bar', 'pressureBar', 'pressure'],
 }
 
 function pickFirst(flat, keys) {
@@ -314,6 +333,9 @@ export function mapTelemetryToDashboard({
       dailyAverageLiter,
       estimatedDaysRemaining: estDays,
     },
+    pressure: {
+      bar: firstNumber([flat.pressureBar, values?.pressure_bar, values?.pressureBar]) ?? 0,
+    },
     pump: {
       status: pumpStatus,
       mode: pumpMode,
@@ -354,12 +376,16 @@ export const DEVICE_LABELS = {
   distance_cm: 'Jarak sensor ke air (cm)',
   level_air_percent: 'Level air (%)',
   levelAirPercent: 'Level air (%)',
-  flow_in_lpm: 'Debit masuk (L/min)',
-  flow_out_lpm: 'Debit keluar (L/min)',
+  volume_air_liter: 'Volume air (Liter)',
+  flow_in_lpm: 'Flow masuk (L/min)',
+  flow_out_lpm: 'Flow keluar (L/min)',
+  pressure_bar: 'Tekanan (Bar)',
+  pump_status: 'Status Pompa (Alat)',
+  sensor_valid: 'Sensor Valid',
+  error_count: 'Jumlah Error',
+  errorCount: 'Jumlah error',
   flow1Lpm: 'Flow 1 (L/min)',
   flow2Lpm: 'Flow 2 (L/min)',
-  error_count: 'Jumlah error',
-  errorCount: 'Jumlah error',
   percentage: 'Persentase tangki (%)',
   waterLevelCm: 'Tinggi air (cm)',
   pumpStatus: 'Status pompa',

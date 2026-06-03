@@ -223,14 +223,12 @@ export function connectThingsBoardWs({
       }
 
       socket.onmessage = (event) => {
-        let message = null
         try {
-          message = JSON.parse(event.data)
+          const message = JSON.parse(event.data)
+          handleMessage(message)
         } catch {
-          return
+          // ignore
         }
-
-        handleMessage(message)
       }
 
       socket.onerror = () => {

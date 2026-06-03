@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom'
-import { Activity, BarChart3, Gauge, History, Settings } from 'lucide-react'
+import { NavLink, useLocation } from 'react-router-dom'
+import { Activity, BarChart3, Gauge, History, Settings, Info } from 'lucide-react'
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: Gauge, end: true },
