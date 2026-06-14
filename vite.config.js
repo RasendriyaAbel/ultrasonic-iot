@@ -3,8 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Jika deploy ke subfolder, ganti '/nama-subfolder/' dengan path publik aplikasi kamu.
-  // Contoh: base: '/ultrasonic-iot/'
+  // Deploy GitHub Pages repo di https://rasendriyaabel.github.io/ultrasonic-iot/
   base: '/ultrasonic-iot/',
   plugins: [react()],
   server: {
