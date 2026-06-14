@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { BarChart3, Droplets, Timer } from 'lucide-react'
 import { StatCard } from '../components/dashboard/StatCard.jsx'
 import { ForecastChart } from '../components/charts/ForecastChart.jsx'
 import { useIot } from '../state/iotContext.js'
 import { formatLiter, formatNumber } from '../utils/format.js'
-import { getForecastChartData } from '../services/forecastDataset.js'
+import { STATIC_FORECAST_DATA } from '../services/forecastDataset.js'
 import { buildOverlappedChartSeries } from '../utils/forecastChartSeries.js'
 import { isDummyDailyH7Enabled } from '../utils/dummyDailyH7.js'
 
@@ -17,27 +17,13 @@ export function PredictionPage() {
 
   const actualDaily = state.dailyConsumption
 
-  const [csvChart, setCsvChart] = useState(null)
-  const [csvLoading, setCsvLoading] = useState(true)
+  const csvChart = STATIC_FORECAST_DATA
+  const csvLoading = false
 
   const chartSeries = useMemo(
     () => buildOverlappedChartSeries((actualDaily || []).slice(-7), csvChart),
     [actualDaily, csvChart],
   )
-
-  useEffect(() => {
-    let cancelled = false
-    getForecastChartData()
-      .then((chart) => {
-        if (!cancelled) setCsvChart(chart)
-      })
-      .finally(() => {
-        if (!cancelled) setCsvLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const liveLast7 = actualDaily.slice(-7)
   const liveAvg =

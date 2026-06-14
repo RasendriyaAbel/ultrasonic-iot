@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { FlowChart } from '../components/charts/FlowChart.jsx'
 import { TankVolumeChart } from '../components/charts/TankVolumeChart.jsx'
 import { ForecastChart } from '../components/charts/ForecastChart.jsx'
 import { useIot } from '../state/iotContext.js'
-import { getForecastChartData } from '../services/forecastDataset.js'
+import { STATIC_FORECAST_DATA } from '../services/forecastDataset.js'
 import { buildOverlappedChartSeries } from '../utils/forecastChartSeries.js'
 import { isDummyDailyH7Enabled } from '../utils/dummyDailyH7.js'
 
@@ -12,11 +12,7 @@ const MODEL_LABEL =
 
 export function MonitoringPage() {
   const { state } = useIot()
-  const [csvChart, setCsvChart] = useState(null)
-
-  useEffect(() => {
-    getForecastChartData().then(setCsvChart)
-  }, [])
+  const csvChart = STATIC_FORECAST_DATA
 
   const chartSeries = useMemo(
     () => buildOverlappedChartSeries((state.dailyConsumption ?? []).slice(-7), csvChart),

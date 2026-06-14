@@ -2,7 +2,7 @@
  * Data harian dari CSV training untuk grafik prediksi.
  * Hardcoded dataset supaya tidak perlu fetch runtime.
  */
-const STATIC_FORECAST_DATA = {
+export const STATIC_FORECAST_DATA = {
   "sourceCsv": "water_dataset_57L_90days_v2(2).csv",
   "totalDays": 90,
   "historyDays": 7,
@@ -433,18 +433,8 @@ const STATIC_FORECAST_DATA = {
   ]
 }
 
-let datasetPromise = null
-
-async function loadDataset() {
-  if (datasetPromise) return datasetPromise
-  datasetPromise = Promise.resolve(STATIC_FORECAST_DATA)
-  return datasetPromise
-}
-
-export async function getForecastChartData() {
-  const data = await loadDataset()
-  if (!data) return null
-
+export function getForecastChartData() {
+  const data = STATIC_FORECAST_DATA
   const historyDays = Array.isArray(data.chartHistory) ? data.chartHistory : []
   const forecastDays = Array.isArray(data.chartForecast) ? data.chartForecast : []
 
@@ -458,12 +448,12 @@ export async function getForecastChartData() {
   }
 }
 
-export async function getDatasetDailySeries(limit = 14) {
-  const data = await loadDataset()
+export function getDatasetDailySeries(limit = 14) {
+  const data = STATIC_FORECAST_DATA
   if (!data?.days?.length) return []
   return data.days.slice(-limit)
 }
 
 export function invalidateForecastDatasetCache() {
-  datasetPromise = null
+  return
 }
