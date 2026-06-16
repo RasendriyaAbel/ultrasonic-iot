@@ -22,7 +22,7 @@ function defaultDateSlots(count = DAY_COUNT) {
  * Hari CSV ke-i → tanggal aktual ke-i.
  */
 export function buildOverlappedChartSeries(actualDaily = [], csvChart = null) {
-  const csvFore = (csvChart?.forecastDays ?? []).map((d) => Number(d.liters) || 0)
+  const csvFore = (csvChart?.days ?? []).slice(0, DAY_COUNT).map((d) => Number(d.liters) || 0)
 
   let dateSlots = (Array.isArray(actualDaily) ? actualDaily : [])
     .filter((d) => d?.date)

@@ -8,9 +8,14 @@ import { PredictionPage } from './pages/PredictionPage.jsx'
 import { SettingsPage } from './pages/SettingsPage.jsx'
 
 export default function App() {
+  // On production (GitHub Pages), Vite sets BASE_URL to '/ultrasonic-iot/'
+  // On development, BASE_URL is '/' from vite.config.js
+  // BrowserRouter will handle the base path correctly with basename
+  const basename = import.meta.env.BASE_URL || '/'
+  
   return (
     <IotProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route element={<AppShell />}>
             <Route path="/" element={<DashboardPage />} />

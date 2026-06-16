@@ -4,7 +4,7 @@ import { Card, CardBody, CardHeader } from '../ui/Card.jsx'
 import { Input } from '../ui/Input.jsx'
 import { Select } from '../ui/Select.jsx'
 import { Badge } from '../ui/Badge.jsx'
-import { formatDateTime, formatLiter, formatLpm, formatPercent } from '../../utils/format.js'
+import { formatDateTimeLocal, formatLiter, formatLpm, formatPercent } from '../../utils/format.js'
 
 function leakTone(status) {
   if (status === 'Normal') return 'good'
@@ -90,7 +90,7 @@ export function HistoryTable({ history }) {
             <tbody className="divide-y divide-cyan-400/20 bg-surface-glass">
               {filtered.slice(0, 250).map((r, idx) => (
                 <tr key={`${r.timestamp}-${idx}`} className="hover:bg-cyan-500/10">
-                  <td className="px-4 py-3 text-sky-100">{formatDateTime(r.timestamp)}</td>
+                  <td className="px-4 py-3 text-sky-100">{formatDateTimeLocal(r.timestamp)}</td>
                   <td className="px-4 py-3 text-sky-100">{formatLiter(r.tank?.currentVolumeLiter, 1)}</td>
                   <td className="px-4 py-3 text-sky-100">{formatPercent(r.tank?.percentage, 0)}</td>
                   <td className="px-4 py-3 text-sky-100">

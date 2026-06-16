@@ -20,8 +20,13 @@ export function formatPercent(value, digits = 0) {
 
 export function formatDateTime(value) {
   if (!value) return '—'
-  const date = typeof value === 'string' ? new Date(value) : value
+
+  const date = typeof value === 'string'
+    ? new Date(value)
+    : value
+
   if (Number.isNaN(date.getTime())) return '—'
+
   return new Intl.DateTimeFormat('id-ID', {
     year: 'numeric',
     month: '2-digit',
@@ -29,16 +34,70 @@ export function formatDateTime(value) {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
+    hour12: false,
   }).format(date)
 }
 
 export function formatShortDate(value) {
   if (!value) return '—'
-  const date = typeof value === 'string' ? new Date(value) : value
+
+  const date = typeof value === 'string'
+    ? new Date(value)
+    : value
+
   if (Number.isNaN(date.getTime())) return '—'
+
   return new Intl.DateTimeFormat('id-ID', {
     month: 'short',
     day: '2-digit',
   }).format(date)
 }
 
+/**
+ * Format waktu mengikuti timezone device/browser
+ * Format: HH.MM.SS
+ */
+export function formatTime(value) {
+  if (!value) return '—'
+
+  const date = typeof value === 'string'
+    ? new Date(value)
+    : value
+
+  if (Number.isNaN(date.getTime())) return '—'
+
+  return new Intl.DateTimeFormat('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+    .format(date)
+    .replace(/:/g, '.')
+}
+
+/**
+ * Format tanggal + waktu mengikuti timezone device/browser
+ * Format: DD/MM/YYYY, HH.MM.SS
+ */
+export function formatDateTimeLocal(value) {
+  if (!value) return '—'
+
+  const date = typeof value === 'string'
+    ? new Date(value)
+    : value
+
+  if (Number.isNaN(date.getTime())) return '—'
+
+  const formatted = new Intl.DateTimeFormat('id-ID', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).format(date)
+
+  return formatted.replace(/:/g, '.')
+}

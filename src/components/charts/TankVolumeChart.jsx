@@ -8,12 +8,12 @@ import {
   YAxis,
 } from 'recharts'
 import { Card, CardBody, CardHeader } from '../ui/Card.jsx'
-import { formatLiter } from '../../utils/format.js'
+import { formatLiter, formatDateTimeLocal } from '../../utils/format.js'
 import { CHART_AXIS_STROKE, CHART_GRID_STROKE, CHART_TOOLTIP_STYLE } from '../../utils/chartTheme.js'
 
 function tickTime(iso) {
   if (!iso) return ''
-  return iso.slice(11, 19)
+  return formatDateTimeLocal(iso)
 }
 
 export function TankVolumeChart({ history }) {

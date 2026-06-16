@@ -1,6 +1,6 @@
 import { Menu } from 'lucide-react'
 import { Badge } from '../ui/Badge.jsx'
-import { formatDateTime } from '../../utils/format.js'
+import { formatDateTimeLocal } from '../../utils/format.js'
 
 function connectionLabel(status) {
   if (status === 'connected') return 'Tersambung'
@@ -19,6 +19,7 @@ function sourceLabel(source) {
 export function Topbar({ onMenuClick, telemetry, connection }) {
   const now = telemetry?.timestamp ? new Date(telemetry.timestamp) : new Date()
   const connTone = connection?.status === 'connected' ? 'good' : connection?.status === 'connecting' ? 'info' : 'warn'
+  console.log('raw telemetry:', telemetry?.timestamp)
 
   return (
     <header className="sticky top-0 z-30 flex flex-col gap-2 border-b border-cyan-400/25 bg-surface-deep/85 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-3 md:px-6">
@@ -35,7 +36,7 @@ export function Topbar({ onMenuClick, telemetry, connection }) {
           <div className="truncate text-sm font-semibold text-ink">
             Dashboard Monitoring Air & Kebocoran
           </div>
-          <div className="mt-0.5 truncate text-xs text-ink-muted">{formatDateTime(now)}</div>
+          <div className="mt-0.5 truncate text-xs text-ink-muted">{formatDateTimeLocal(now)}</div>
         </div>
       </div>
 
@@ -43,6 +44,8 @@ export function Topbar({ onMenuClick, telemetry, connection }) {
         <Badge tone={connTone}>{connectionLabel(connection?.status)}</Badge>
         <Badge tone="info">{sourceLabel(connection?.source)}</Badge>
       </div>
+    
+      
     </header>
   )
 }
